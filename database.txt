@@ -1,0 +1,181 @@
+drop database household_chemicalsdb;
+create database household_chemicalsdb;
+use household_chemicalsdb;
+
+create table user(
+ id int auto_increment primary key,
+ role varchar(50) not null,
+ name varchar (50) not null,
+ surname varchar (50) not null,
+ patronymic varchar (50) null,
+ phone_number varchar (12) not null unique,
+ birthdate date,
+ pasport_series_number varchar(11) unique,
+ login varchar (25) not null unique,
+ password varchar (25) not null,
+ status varchar (50) default 'Активен'
+ );
+
+create table category(
+ id int auto_increment primary key,
+ name varchar(100) not null unique
+ );
+
+create table purpose(
+ id int auto_increment primary key,
+ name varchar(100) not null unique
+ );
+
+create table danger(
+ id int auto_increment primary key,
+ name varchar(100) not null unique
+ );
+
+create table manufacturer(
+ id int auto_increment primary key,
+ name varchar(100) not null unique
+ );
+
+create table product(
+ id int auto_increment primary key,
+ id_purpose int null,
+ id_category int null,
+ id_danger int null,
+ id_manufacturer int null,
+ name varchar(50) not null,
+ description varchar(250) null,
+ cost decimal(10,2) not null,
+ count int not null,
+ photo blob null,
+ on_sale bool default 1,
+ foreign key (id_purpose) references purpose(id),
+ foreign key (id_category) references category(id),
+ foreign key (id_danger) references danger(id),
+ foreign key (id_manufacturer) references manufacturer(id)
+ );
+
+create table sale(
+ id int auto_increment primary key,
+ id_user int null,
+ status_sale bool not null,
+ payment_method bool not null,
+ datetime_sale datetime not null,
+ foreign key (id_user) references user(id)
+ );
+
+create table product_sale(
+ id int auto_increment primary key,
+ id_product int not null,
+ id_sale int not null,
+ count int not null,
+ foreign key (id_product) references product(id),
+ foreign key (id_sale) references sale(id)
+ );
+ -- Заполнение таблицы user (сотрудники и клиенты)
+INSERT INTO user (id, role, name, surname, patronymic, phone_number, birthdate, pasport_series_number, login, password, status) VALUES
+(1,'Администратор', 'Ришат', 'Позорник', 'Шерливахноклоствич', '79011234567', '1985-05-15', '1234567890', '1', '1', 'Активен'),
+(2,'Кассир', 'Елена', 'Смирнова', 'Александровна', '79021234567', '1990-08-20', '2345678901', 'cashier1', 'cashierpass1', 'Активен'),
+(3,'Кассир', 'Алексей', 'Кузнецов', 'Дмитриевич', '79031234567', '1992-03-10', '3456789012', 'cashier2', 'cashierpass2', 'Активен'),
+(4,'Клиент', 'Ольга', 'Иванова', 'Викторовна', '79041234567', '1995-07-25', NULL, 'client1', 'clientpass1', 'Активен'),
+(5,'Клиент', 'Дмитрий', 'Соколов', 'Игоревич', '79051234567', '1988-11-30', NULL, 'client2', 'clientpass2', 'Активен'),
+(6,'Клиент', 'Анна', 'Васильева', 'Олеговна', '79061234567', '1993-09-12', NULL, 'client3', 'clientpass3', 'Активен'),
+(7,'Администратор', 'Сергей', 'Федоров', 'Анатольевич', '79071234567', '1980-12-05', '4567890123', 'admin2', 'adminpass2', 'Активен'),
+(8,'Кассир', 'Мария', 'Николаева', 'Сергеевна', '79081234567', '1991-04-18', '5678901234', 'cashier3', 'cashierpass3', 'Неактивен'),
+(9,'Клиент', 'Андрей', 'Павлов', 'Владимирович', '79091234567', '1987-06-22', NULL, 'client4', 'clientpass4', 'Активен'),
+(10,'Клиент', 'Наталья', 'Михайлова', 'Денисовна', '79101234567', '1994-02-14', NULL, 'client5', 'clientpass5', 'Неактивен');
+
+-- Заполнение таблицы category (категории товаров)
+INSERT INTO category (id,name) VALUES
+(1,'Чистящие средства'),
+(2,'Стиральные порошки'),
+(3,'Средства для мытья посуды'),
+(4,'Освежители воздуха'),
+(5,'Средства для ухода за мебелью'),
+(6,'Средства для чистки ковров'),
+(7,'Средства для ухода за сантехникой'),
+(8,'Инсектициды'),
+(9,'Средства для мытья полов'),
+(10,'Средства для чистки стекол');
+
+-- Заполнение таблицы purpose (назначение товаров)
+INSERT INTO purpose (id, name) VALUES
+(1,'Для кухни'),
+(2,'Для ванной'),
+(3,'Для стирки'),
+(4,'Для уборки'),
+(5,'Для дезинфекции'),
+(6,'Для мебели'),
+(7,'Для ковров'),
+(8,'Для окон'),
+(9,'Для сантехники'),
+(10,'Для борьбы с насекомыми');
+
+-- Заполнение таблицы danger (опасность товаров)
+INSERT INTO danger (id, name) VALUES
+(1,'Неопасно'),
+(2,'Легковоспламеняющееся'),
+(3,'Едкое'),
+(4,'Токсичное'),
+(5,'Раздражающее'),
+(6,'Опасное для окружающей среды'),
+(7,'Вредное для здоровья'),
+(8,'Может вызвать аллергию'),
+(9,'Опасно при проглатывании'),
+(10,'Требует осторожного обращения');
+
+-- Заполнение таблицы manufacturer (производители)
+INSERT INTO manufacturer (id,name) VALUES
+(1,'Domestos'),
+(2,'Ariel'),
+(3,'Fairy'),
+(4,'Gloss'),
+(5,'Mr. Proper'),
+(6,'Comet'),
+(7,'Raid'),
+(8,'Pronto'),
+(9,'Sorti'),
+(10,'Cif');
+
+-- Заполнение таблицы product (товары)
+INSERT INTO product (id, id_purpose, id_category, id_danger, id_manufacturer, name, description, cost, count, photo, on_sale) VALUES
+(1,1, 3, 3, 3, 'Fairy Classic', 'Средство для мытья посуды', 120.50, 50, NULL, true),
+(2,3, 2, 4, 2, 'Ariel Color', 'Стиральный порошок для цветного белья', 450.00, 30, NULL, true),
+(3,4, 1, 2, 5, 'Mr. Proper Лимон', 'Чистящее средство для поверхностей', 180.00, 40, NULL, true),
+(4,2, 7, 3, 1, 'Domestos Ультра', 'Дезинфицирующее средство для сантехники', 220.00, 25, NULL, true),
+(5,9, 8, 5, 7, 'Raid против муравьев', 'Средство от насекомых', 300.00, 15, NULL, true),
+(6,5, 6, 4, 6, 'Comet гель', 'Чистящее средство для ванны и раковины', 150.00, 35, NULL, true),
+(7,7, 5, 1, 4, 'Gloss для мебели', 'Полироль для деревянной мебели', 200.00, 20, NULL, true),
+(8,8, 10, 1, 10, 'Cif для стекол', 'Средство для чистки стекол и зеркал', 170.00, 45, NULL, true),
+(9,6, 4, 6, 9, 'Sorti весенний букет', 'Освежитель воздуха', 90.00, 60, NULL, true),
+(10,10, 9, 7, 8, 'Pronto для полов', 'Средство для мытья полов', 130.00, 55, NULL, true);
+
+-- Заполнение таблицы sale (продажи)
+INSERT INTO sale (id,id_user, status_sale, payment_method, datetime_sale) VALUES
+(1,4, FALSE, TRUE, '2013-03-14'),  
+(2,1, FALSE, FALSE, '2013-03-15'),  
+(3,5, FALSE, TRUE, '2013-03-16'),
+(4,2, FALSE, FALSE, '2013-03-17'),
+(5,6, FALSE, TRUE, '2013-03-18'),
+(6,7, FALSE, FALSE, '2013-03-19'),
+(7,3, FALSE, TRUE, '2013-03-20'),
+(8,9, FALSE, FALSE, '2013-03-21'),
+(9,2, FALSE, TRUE, '2013-03-22'),
+(10,10, FALSE, FALSE, '2013-03-23');
+
+-- Заполнение таблицы product_sale (товары в продажах)
+INSERT INTO product_sale (id_product, id_sale, count) VALUES
+(1, 1, 2),
+(3, 1, 1),
+(2, 2, 1),
+(5, 3, 3),
+(4, 4, 2),
+(6, 5, 1),
+(7, 6, 1),
+(8, 7, 2),
+(9, 8, 4),
+(10, 9, 1),
+(1, 10, 3),
+(2, 10, 1),
+(3, 3, 2),
+(4, 5, 1),
+(5, 7, 1);
